@@ -25,23 +25,37 @@ app.use(passport.session({}));
 app.set('view engine', 'pug');
 app.set('views', './views/pug');
 
-passport.serializeUser((user, done) => {
-  done(null, user._id);
-});
+myDB(async client => {
+  const myDataBase = await client.db('database').collection('users');
 
-passport.deserializeUser((id, done) => {
-  // myDataBase.findOne({ _id: new ObjectId(id) }, (err, doc) => {
-    done(null, null);
-  // });
-});
+  // Be sure to change the title
+  app.route('/').get((req, res) => {
+    // Change the response to render the Pug template
+    res.render('index', {
+      title: 'Connected to Database',
+      message: 'Please login'
+    });
+  });
 
-app.route('/').get((req, res) => {
-  res.render('index', {
-    title: 'Hello',
-    message: 'Please log in'
+  // Serialization and deserialization here...
+  passport.serializeUser((user, done) => {
+    done(null, user._id);
+  });
+
+  passport.deserializeUser((id, done) => {
+    myDataBase.findOne({ _id: new ObjectId(id) }, (err, doc) => {
+      done(null, doc);
+    });
+  });
+
+  // Be sure to add this...
+}).catch(e => {
+  app.route('/').get((req, res) => {
+    res.render('index', { title: e, message: 'Unable to connect to database' });
   });
 });
 
+// app.listen out here...
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log('Listening on port ' + PORT);
