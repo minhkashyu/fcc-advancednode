@@ -52,6 +52,7 @@ myDB(async client => {
     .get((req, res) => {
     // Change the response to render the Pug template
     res.render('index', {
+      showRegistration: true,
       showLogin: true,
       title: 'Connected to Database',
       message: 'Please login'
@@ -68,6 +69,38 @@ myDB(async client => {
       done(null, doc);
     });
   });
+
+  app
+    .route('/register')
+    .post((req, res, next) => {
+      myDataBase.findOne({ username: req.body.username }, (err, user) => {
+        if (err) {
+          next(err);
+        } else if (user) {
+          res.redirect('/');
+        } else {
+          myDataBase.insertOne({
+              username: req.body.username,
+              password: req.body.password
+            },
+            (err, doc) => {
+              if (err) {
+                res.redirect('/');
+              } else {
+                // The inserted document is held within
+                // the ops property of the doc
+                next(null, doc.ops[0]);
+              }
+            }
+          )
+        }
+      })
+    },
+    passport.authenticate('local', { failureRedirect: '/' }),
+    (req, res, next) => {
+      res.redirect('/profile');
+    }
+  );
 
   app
     .route('/login')
@@ -95,7 +128,7 @@ myDB(async client => {
     .type('text')
     .send('Not Found');
   });
-  
+
   // Be sure to add this...
 }).catch(e => {
   app.route('/').get((req, res) => {
