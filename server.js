@@ -43,6 +43,7 @@ myDB(async client => {
   app.route('/').get((req, res) => {
     // Change the response to render the Pug template
     res.render('index', {
+      showLogin: true,
       title: 'Connected to Database',
       message: 'Please login'
     });
@@ -57,6 +58,16 @@ myDB(async client => {
     myDataBase.findOne({ _id: new ObjectId(id) }, (err, doc) => {
       done(null, doc);
     });
+  });
+
+  app.post('/login',
+      passport.authenticate('local', { failureRedirect: '/', failureMessage: true }),
+      (req, res) => {
+        res.redirect('/profile');
+  });
+
+  app.get('/profile', (req, res) => {
+    res.render('profile');
   });
 
   // Be sure to add this...
