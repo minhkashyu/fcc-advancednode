@@ -91,4 +91,11 @@ io.on('connection', socket => {
   socket.on('disconnect', () => {
     --currentUsers;
   });
+
+  socket.on('chat message', msg => {
+    io.emit('chat message', {
+      username: socket.request.user.username,
+      message: msg
+    });
+  });
 });
