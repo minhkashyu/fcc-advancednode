@@ -62,20 +62,29 @@ module.exports = function(app, myDataBase) {
   });
 
   app
+  .route('/profile')
+  .get(ensureAuthenticated, (req, res) => {
+    res.render('profile', {
+      username: req.user.username
+    });
+  });
+
+  app
   .route('/auth/github')
   .get(passport.authenticate('github', {scope : 'user:email'}));
 
   app
   .route('/auth/github/callback')
   .get(passport.authenticate('github',{failureRedirect: '/', failureMessage: true}), (req, res) => {
-    res.redirect('/profile');
+    req.session.user_id = req.user.id
+    res.redirect('/chat');
   });
 
   app
-  .route('/profile')
+  .route('/chat')
   .get(ensureAuthenticated, (req, res) => {
-    res.render('profile', {
-      username: req.user.username
+    res.render('chat', {
+      user: req.user
     });
   });
 
