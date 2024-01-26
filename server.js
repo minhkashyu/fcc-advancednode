@@ -45,6 +45,11 @@ http.listen(PORT, () => {
   console.log('Listening on port ' + PORT);
 });
 
+let currentUsers = 0;
 io.on('connection', socket => {
   console.log('A user has connected');
+
+  ++currentUsers;
+
+  io.emit('user count', currentUsers);
 });
