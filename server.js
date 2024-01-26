@@ -52,4 +52,8 @@ io.on('connection', socket => {
   ++currentUsers;
 
   io.emit('user count', currentUsers);
+
+  socket.on('disconnect', () => {
+    --currentUsers;
+  });
 });
