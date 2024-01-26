@@ -1,5 +1,6 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
+const GithubStrategy = require('passport-github');
 const bcrypt = require('bcrypt');
 const {ObjectId} = require('mongodb');
 
@@ -14,6 +15,14 @@ module.exports = function (app, myDataBase) {
       }
       return done(null, user);
     });
+  }));
+
+  passport.use(new GithubStrategy({
+    clientID: process.env.GITHUB_CLIENT_ID,
+    clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    callbackURL: '/auth/github/callback'
+  }, (accessToken, refreshToken, profile, done) => {
+    return done(null, profile);
   }));
 
   passport.serializeUser((user, done) => {
