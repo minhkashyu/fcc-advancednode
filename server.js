@@ -82,7 +82,11 @@ io.on('connection', socket => {
 
   ++currentUsers;
 
-  io.emit('user count', currentUsers);
+  io.emit('user', {
+    username: socket.request.user.username,
+    currentUsers,
+    connected: true
+  });
 
   socket.on('disconnect', () => {
     --currentUsers;
